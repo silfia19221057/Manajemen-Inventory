@@ -57,13 +57,21 @@ class DashboardController extends BaseController
 
         $salesRows = $db->query("
             SELECT
-                DATE(p.tanggal_jual) as tgl,
-                COALESCE(SUM(p.total_harga), 0) as total,
-                COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0) as keuntungan
-            FROM penjualan p
-            LEFT JOIN detail_penjualan dp ON dp.id_penjualan = p.id
-            WHERE p.tanggal_jual >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-            GROUP BY DATE(p.tanggal_jual)
+                DATE(summary.tanggal_jual) AS tgl,
+                COALESCE(SUM(summary.total_harga), 0) AS total,
+                COALESCE(SUM(summary.keuntungan), 0) AS keuntungan
+            FROM (
+                SELECT
+                    p.id,
+                    p.tanggal_jual,
+                    p.total_harga,
+                    COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0) AS keuntungan
+                FROM penjualan p
+                LEFT JOIN detail_penjualan dp ON dp.id_penjualan = p.id
+                WHERE p.tanggal_jual >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+                GROUP BY p.id, p.tanggal_jual, p.total_harga
+            ) AS summary
+            GROUP BY DATE(summary.tanggal_jual)
             ORDER BY tgl ASC
         ", [$days - 1])->getResultArray();
 
@@ -100,14 +108,22 @@ class DashboardController extends BaseController
         // --- Grafik 3: Tren bulanan (12 bulan terakhir) ---
         $monthlyRows = $db->query("
             SELECT
-                DATE_FORMAT(p.tanggal_jual, '%Y-%m') as bln,
-                DATE_FORMAT(MIN(p.tanggal_jual), '%b %Y') as label,
-                COALESCE(SUM(p.total_harga), 0) as total,
-                COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0) as keuntungan
-            FROM penjualan p
-            LEFT JOIN detail_penjualan dp ON dp.id_penjualan = p.id
-            WHERE p.tanggal_jual >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(p.tanggal_jual, '%Y-%m')
+                DATE_FORMAT(summary.tanggal_jual, '%Y-%m') AS bln,
+                DATE_FORMAT(MIN(summary.tanggal_jual), '%b %Y') AS label,
+                COALESCE(SUM(summary.total_harga), 0) AS total,
+                COALESCE(SUM(summary.keuntungan), 0) AS keuntungan
+            FROM (
+                SELECT
+                    p.id,
+                    p.tanggal_jual,
+                    p.total_harga,
+                    COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0) AS keuntungan
+                FROM penjualan p
+                LEFT JOIN detail_penjualan dp ON dp.id_penjualan = p.id
+                WHERE p.tanggal_jual >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                GROUP BY p.id, p.tanggal_jual, p.total_harga
+            ) AS summary
+            GROUP BY DATE_FORMAT(summary.tanggal_jual, '%Y-%m')
             ORDER BY bln ASC
         ")->getResultArray();
 

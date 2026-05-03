@@ -57,15 +57,20 @@ class PenjualanModel extends Model
     {
         $tanggal = $tanggal ?? date('Y-m-d');
 
-        return $this->db->query("
-            SELECT
-                COALESCE(SUM(p.total_harga), 0)                                                           AS total,
-                COUNT(DISTINCT p.id)                                                                       AS jumlah_transaksi,
-                COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0)                            AS total_keuntungan
-            FROM penjualan p
-            LEFT JOIN detail_penjualan dp ON dp.id_penjualan = p.id
-            WHERE p.tanggal_jual = ?
-        ", [$tanggal])->getRowArray();
+        $summary = $this->db->table('penjualan')
+                            ->select('COALESCE(SUM(total_harga), 0) AS total, COUNT(id) AS jumlah_transaksi')
+                            ->where('tanggal_jual', $tanggal)
+                            ->get()
+                            ->getRowArray();
+
+        $profit = $this->db->table('penjualan p')
+                           ->select('COALESCE(SUM((dp.harga_jual - dp.harga_beli) * dp.jumlah), 0) AS total_keuntungan')
+                           ->join('detail_penjualan dp', 'dp.id_penjualan = p.id', 'left')
+                           ->where('p.tanggal_jual', $tanggal)
+                           ->get()
+                           ->getRowArray();
+
+        return array_merge($summary, $profit);
     }
 
     // Rekap penjualan per bulan
