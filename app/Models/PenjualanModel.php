@@ -14,7 +14,7 @@ class PenjualanModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'no_transaksi', 'tanggal_jual', 'nama_pembeli', 'id_customer',
-        'total_harga', 'bayar', 'kembalian', 'keterangan',
+        'total_harga', 'bayar', 'kembalian', 'metode_bayar', 'keterangan',
     ];
 
     // Dates

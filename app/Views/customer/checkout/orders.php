@@ -52,9 +52,15 @@
                     <i class="fas fa-box text-slate-400 mr-1.5 text-xs"></i>
                     <?= $order['jumlah_item'] ?> item
                 </span>
+                <?php $isQris = ($order['metode_bayar'] ?? 'cod') === 'qris'; ?>
                 <span>
-                    <i class="fas fa-money-bill-wave text-slate-400 mr-1.5 text-xs"></i>
-                    COD
+                    <?php if ($isQris): ?>
+                        <i class="fas fa-qrcode text-slate-400 mr-1.5 text-xs"></i>
+                        QRIS
+                    <?php else: ?>
+                        <i class="fas fa-money-bill-wave text-slate-400 mr-1.5 text-xs"></i>
+                        COD
+                    <?php endif; ?>
                 </span>
                 <?php if ($order['keterangan']): ?>
                 <span class="truncate max-w-[200px]" title="<?= esc($order['keterangan']) ?>">

@@ -85,10 +85,11 @@ class CheckoutController extends BaseController
             ];
         }
 
-        $noHp       = $this->request->getPost('no_hp');
-        $alamat     = $this->request->getPost('alamat');
-        $catatan    = $this->request->getPost('catatan');
-        $customerId = session()->get('customer_id');
+        $noHp        = $this->request->getPost('no_hp');
+        $alamat      = $this->request->getPost('alamat');
+        $catatan     = $this->request->getPost('catatan');
+        $metodeBayar = $this->request->getPost('metode_bayar') === 'qris' ? 'qris' : 'cod';
+        $customerId  = session()->get('customer_id');
 
         if ($noHp || $alamat) {
             (new CustomerModel())->update($customerId, array_filter([
@@ -105,6 +106,7 @@ class CheckoutController extends BaseController
             'total_harga'  => $totalHarga,
             'bayar'        => $totalHarga,
             'kembalian'    => 0,
+            'metode_bayar' => $metodeBayar,
             'keterangan'   => $catatan ?: null,
         ]);
 

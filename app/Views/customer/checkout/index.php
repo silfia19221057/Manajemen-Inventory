@@ -86,19 +86,88 @@
             <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <i class="fas fa-wallet text-brand-500"></i> Metode Pembayaran
             </h3>
-            <div class="flex items-center gap-3 p-4 rounded-xl border-2 border-brand-300 bg-brand-50">
-                <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-money-bill-wave text-brand-600"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-800">Bayar di Tempat (COD)</p>
-                    <p class="text-xs text-slate-500 mt-0.5">Pembayaran dilakukan saat produk diterima</p>
-                </div>
-                <div class="ml-auto w-5 h-5 rounded-full border-2 border-brand-500 flex items-center justify-center flex-shrink-0">
-                    <div class="w-2.5 h-2.5 rounded-full bg-brand-500"></div>
+
+            <div class="space-y-3">
+                <!-- COD -->
+                <label class="payment-option flex items-center gap-3 p-4 rounded-xl border-2 border-brand-300 bg-brand-50 cursor-pointer transition"
+                       data-method="cod">
+                    <input type="radio" name="metode_bayar" value="cod" class="sr-only" checked>
+                    <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-money-bill-wave text-brand-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-slate-800">Bayar di Tempat (COD)</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Pembayaran dilakukan saat produk diterima</p>
+                    </div>
+                    <div class="payment-radio w-5 h-5 rounded-full border-2 border-brand-500 flex items-center justify-center flex-shrink-0">
+                        <div class="payment-radio-dot w-2.5 h-2.5 rounded-full bg-brand-500"></div>
+                    </div>
+                </label>
+
+                <!-- QRIS -->
+                <label class="payment-option flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 bg-white cursor-pointer transition hover:border-brand-200"
+                       data-method="qris">
+                    <input type="radio" name="metode_bayar" value="qris" class="sr-only">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-qrcode text-indigo-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-slate-800">QRIS</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Scan QR untuk membayar dengan e-wallet / mobile banking</p>
+                    </div>
+                    <div class="payment-radio w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                        <div class="payment-radio-dot w-2.5 h-2.5 rounded-full bg-brand-500 hidden"></div>
+                    </div>
+                </label>
+
+                <!-- QRIS preview (hidden by default) -->
+                <div id="qris-preview" class="hidden p-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
+                    <div class="flex flex-col items-center text-center">
+                        <p class="text-sm font-semibold text-slate-700 mb-1">Scan QRIS di bawah ini</p>
+                        <p class="text-xs text-slate-500 mb-3">Gunakan aplikasi e-wallet / m-banking apa pun</p>
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                            <img src="<?= base_url('image/qris.jpeg') ?>" alt="QRIS"
+                                 class="w-56 h-56 object-contain">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3">
+                            Setelah pembayaran berhasil, klik <strong>Konfirmasi Pesanan</strong>.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            (function () {
+                const options = document.querySelectorAll('.payment-option');
+                const preview = document.getElementById('qris-preview');
+
+                function selectMethod(method) {
+                    options.forEach(opt => {
+                        const isActive = opt.dataset.method === method;
+                        const radio = opt.querySelector('.payment-radio');
+                        const dot   = opt.querySelector('.payment-radio-dot');
+                        const input = opt.querySelector('input[type="radio"]');
+
+                        opt.classList.toggle('border-brand-300', isActive);
+                        opt.classList.toggle('bg-brand-50',     isActive);
+                        opt.classList.toggle('border-slate-200', !isActive);
+                        opt.classList.toggle('bg-white',         !isActive);
+
+                        radio.classList.toggle('border-brand-500', isActive);
+                        radio.classList.toggle('border-slate-300', !isActive);
+                        dot.classList.toggle('hidden', !isActive);
+
+                        input.checked = isActive;
+                    });
+                    preview.classList.toggle('hidden', method !== 'qris');
+                }
+
+                options.forEach(opt => {
+                    opt.addEventListener('click', () => selectMethod(opt.dataset.method));
+                });
+            })();
+        </script>
     </div>
 
     <!-- Order summary -->
