@@ -19,9 +19,17 @@
 
         <div class="px-6 py-5 space-y-4">
             <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
-                <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
-                    <i class="fas fa-cube text-blue-500 text-xl"></i>
+                <?php if (!empty($barang['gambar'])): ?>
+                <a href="<?= base_url('uploads/barang/'.$barang['gambar']) ?>" target="_blank" class="block w-20 h-20 rounded-2xl overflow-hidden border border-slate-200 flex-shrink-0">
+                    <img src="<?= base_url('uploads/barang/'.$barang['gambar']) ?>"
+                         alt="<?= esc($barang['nama_barang']) ?>"
+                         class="w-full h-full object-cover hover:scale-105 transition">
+                </a>
+                <?php else: ?>
+                <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-cube text-blue-500 text-2xl"></i>
                 </div>
+                <?php endif; ?>
                 <div>
                     <p class="font-bold text-lg text-slate-800"><?= esc($barang['nama_barang']) ?></p>
                     <span class="font-mono text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded"><?= esc($barang['kode_barang']) ?></span>

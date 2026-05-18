@@ -10,9 +10,15 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" x-data="{ qty: 1, loading: false }">
 
-    <!-- Image placeholder -->
-    <div class="bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl h-80 lg:h-auto min-h-[280px] flex items-center justify-center">
-        <i class="fas fa-cube text-slate-300 text-8xl"></i>
+    <!-- Image -->
+    <div class="bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl h-80 lg:h-auto min-h-[280px] flex items-center justify-center overflow-hidden">
+        <?php if (!empty($barang['gambar'])): ?>
+            <img src="<?= base_url('uploads/barang/'.$barang['gambar']) ?>"
+                 alt="<?= esc($barang['nama_barang']) ?>"
+                 class="w-full h-full object-cover">
+        <?php else: ?>
+            <i class="fas fa-cube text-slate-300 text-8xl"></i>
+        <?php endif; ?>
     </div>
 
     <!-- Detail -->

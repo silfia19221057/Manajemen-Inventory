@@ -73,14 +73,21 @@
                             hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
                      x-data="{ qty: 1, loading: false }">
 
-                    <!-- Product image placeholder -->
-                    <div class="h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-brand-50/50 to-slate-100 opacity-0 group-hover:opacity-100 transition"></div>
-                        <i class="fas fa-cube text-slate-300 text-5xl relative z-10"></i>
+                    <!-- Product image -->
+                    <a href="<?= base_url('shop/detail/' . $b['id']) ?>"
+                       class="block h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
+                        <?php if (!empty($b['gambar'])): ?>
+                            <img src="<?= base_url('uploads/barang/'.$b['gambar']) ?>"
+                                 alt="<?= esc($b['nama_barang']) ?>"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <?php else: ?>
+                            <div class="absolute inset-0 bg-gradient-to-br from-brand-50/50 to-slate-100 opacity-0 group-hover:opacity-100 transition"></div>
+                            <i class="fas fa-cube text-slate-300 text-5xl relative z-10"></i>
+                        <?php endif; ?>
                         <?php if ($b['stok'] <= $b['stok_minimum'] && $b['stok_minimum'] > 0): ?>
                         <span class="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Stok Terbatas</span>
                         <?php endif; ?>
-                    </div>
+                    </a>
 
                     <div class="p-4">
                         <!-- Category -->
