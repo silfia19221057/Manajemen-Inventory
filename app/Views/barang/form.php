@@ -18,7 +18,7 @@
             <h2 class="font-semibold text-slate-800"><?= $title ?></h2>
         </div>
 
-        <form method="post" action="<?= $barang ? base_url('barang/update/'.$barang['id']) : base_url('barang/store') ?>" class="px-6 py-5">
+        <form method="post" enctype="multipart/form-data" action="<?= $barang ? base_url('barang/update/'.$barang['id']) : base_url('barang/store') ?>" class="px-6 py-5">
             <?= csrf_field() ?>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -86,10 +86,48 @@
                 </div>
             </div>
 
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-[12.5px] font-semibold text-slate-600 mb-1.5">Keterangan</label>
                 <textarea name="keterangan" rows="2" placeholder="Keterangan tambahan (opsional)"
                           class="inp resize-none"><?= old('keterangan',$barang['keterangan']??'') ?></textarea>
+            </div>
+
+            <div class="mb-6" x-data="{ preview: '<?= !empty($barang['gambar']) ? base_url('uploads/barang/'.$barang['gambar']) : '' ?>', hapus: false }">
+                <label class="block text-[12.5px] font-semibold text-slate-600 mb-1.5">
+                    Gambar Barang
+                    <span class="text-slate-400 font-normal text-[11px]">(JPG/PNG/WEBP, maks 2 MB)</span>
+                </label>
+
+                <div class="flex items-start gap-4">
+                    <!-- Preview -->
+                    <div class="w-28 h-28 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <template x-if="preview && !hapus">
+                            <img :src="preview" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!preview || hapus">
+                            <i class="fas fa-image text-slate-300 text-2xl"></i>
+                        </template>
+                    </div>
+
+                    <!-- Input -->
+                    <div class="flex-1">
+                        <input type="file" name="gambar" accept="image/jpeg,image/png,image/webp,image/gif"
+                               @change="hapus = false; const f = $event.target.files[0]; if (f) { preview = URL.createObjectURL(f); }"
+                               class="block w-full text-[12px] text-slate-500
+                                      file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0
+                                      file:text-[12px] file:font-semibold
+                                      file:bg-indigo-50 file:text-indigo-600
+                                      hover:file:bg-indigo-100 cursor-pointer">
+                        <p class="text-[11px] text-slate-400 mt-1.5">Opsional. Kosongkan jika tidak ingin mengubah gambar.</p>
+
+                        <?php if (!empty($barang['gambar'])): ?>
+                        <label class="inline-flex items-center gap-2 mt-2 text-[12px] text-rose-500 cursor-pointer">
+                            <input type="checkbox" name="hapus_gambar" value="1" x-model="hapus" class="rounded text-rose-500">
+                            <span>Hapus gambar yang ada</span>
+                        </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center gap-3 pt-4 border-t border-slate-100">

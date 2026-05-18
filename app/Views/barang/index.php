@@ -45,6 +45,7 @@
             <thead>
                 <tr>
                     <th class="text-left w-10">#</th>
+                    <th class="text-left w-14">Foto</th>
                     <th class="text-left">Kode</th>
                     <th class="text-left">Nama Barang</th>
                     <th class="text-left">Kategori</th>
@@ -56,7 +57,7 @@
             </thead>
             <tbody>
                 <?php if (empty($barangs)): ?>
-                <tr><td colspan="8" class="py-16 text-center">
+                <tr><td colspan="9" class="py-16 text-center">
                     <i class="fas fa-cube text-4xl text-slate-200 block mb-3"></i>
                     <p class="text-slate-400 text-sm">
                         <?= ($search || $kategori) ? 'Tidak ada barang yang cocok' : 'Belum ada data barang' ?>
@@ -74,6 +75,17 @@
                 ?>
                 <tr>
                     <td class="text-slate-400 text-[12px]"><?= $offset + $i + 1 ?></td>
+                    <td>
+                        <?php if (!empty($b['gambar'])): ?>
+                        <img src="<?= base_url('uploads/barang/'.$b['gambar']) ?>"
+                             alt="<?= esc($b['nama_barang']) ?>"
+                             class="w-10 h-10 rounded-lg object-cover border border-slate-200">
+                        <?php else: ?>
+                        <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-image text-slate-300 text-sm"></i>
+                        </div>
+                        <?php endif; ?>
+                    </td>
                     <td><span class="font-mono text-[12px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"><?= esc($b['kode_barang']) ?></span></td>
                     <td>
                         <p class="font-semibold text-slate-800 text-[13.5px]"><?= esc($b['nama_barang']) ?></p>

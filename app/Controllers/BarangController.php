@@ -9,6 +9,7 @@ class BarangController extends BaseController
 {
     protected BarangModel $model;
     protected KategoriModel $kategoriModel;
+    protected string $uploadError = '';
 
     public function __construct()
     {
@@ -63,7 +64,20 @@ class BarangController extends BaseController
 
     public function store()
     {
-        if (!$this->model->save($this->request->getPost())) {
+        $data = $this->request->getPost();
+
+        $gambar = $this->handleUploadGambar();
+        if ($gambar === false) {
+            return redirect()->back()->withInput()->with('error', $this->uploadError);
+        }
+        if ($gambar !== null) {
+            $data['gambar'] = $gambar;
+        }
+
+        if (!$this->model->save($data)) {
+            if (!empty($gambar)) {
+                @unlink(FCPATH . 'uploads/barang/' . $gambar);
+            }
             return redirect()->back()->withInput()->with('error', implode('<br>', $this->model->errors()));
         }
         return redirect()->to('barang')->with('success', 'Barang berhasil ditambahkan.');
@@ -87,7 +101,30 @@ class BarangController extends BaseController
         $barang = $this->model->find($id);
         if (!$barang) return redirect()->to('barang')->with('error', 'Barang tidak ditemukan.');
 
-        if (!$this->model->update($id, $this->request->getPost())) {
+        $data = $this->request->getPost();
+
+        // Hapus gambar lama jika user mencentang hapus
+        $hapusGambar = $this->request->getPost('hapus_gambar');
+
+        $gambar = $this->handleUploadGambar();
+        if ($gambar === false) {
+            return redirect()->back()->withInput()->with('error', $this->uploadError);
+        }
+
+        if ($gambar !== null) {
+            $data['gambar'] = $gambar;
+            if (!empty($barang['gambar'])) {
+                @unlink(FCPATH . 'uploads/barang/' . $barang['gambar']);
+            }
+        } elseif ($hapusGambar && !empty($barang['gambar'])) {
+            @unlink(FCPATH . 'uploads/barang/' . $barang['gambar']);
+            $data['gambar'] = null;
+        }
+
+        if (!$this->model->update($id, $data)) {
+            if (!empty($gambar)) {
+                @unlink(FCPATH . 'uploads/barang/' . $gambar);
+            }
             return redirect()->back()->withInput()->with('error', implode('<br>', $this->model->errors()));
         }
         return redirect()->to('barang')->with('success', 'Barang berhasil diperbarui.');
@@ -97,6 +134,10 @@ class BarangController extends BaseController
     {
         $barang = $this->model->find($id);
         if (!$barang) return redirect()->to('barang')->with('error', 'Barang tidak ditemukan.');
+
+        if (!empty($barang['gambar'])) {
+            @unlink(FCPATH . 'uploads/barang/' . $barang['gambar']);
+        }
 
         $this->model->delete($id);
         return redirect()->to('barang')->with('success', 'Barang berhasil dihapus.');
@@ -110,6 +151,42 @@ class BarangController extends BaseController
         if (!$barang) return redirect()->to('barang')->with('error', 'Barang tidak ditemukan.');
 
         return view('barang/show', ['title' => 'Detail Barang', 'barang' => $barang]);
+    }
+
+    /**
+     * Proses upload gambar barang.
+     * Return: string nama file baru jika sukses, null jika tidak ada upload, false jika gagal.
+     */
+    protected function handleUploadGambar()
+    {
+        $file = $this->request->getFile('gambar');
+        if (!$file || !$file->isValid() || $file->getError() === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        $allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        $allowedExt  = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        $maxSize     = 2 * 1024 * 1024; // 2 MB
+
+        if (!in_array($file->getMimeType(), $allowedMime, true) ||
+            !in_array(strtolower($file->getExtension()), $allowedExt, true)) {
+            $this->uploadError = 'Format gambar harus JPG, PNG, WEBP, atau GIF.';
+            return false;
+        }
+
+        if ($file->getSize() > $maxSize) {
+            $this->uploadError = 'Ukuran gambar maksimal 2 MB.';
+            return false;
+        }
+
+        $targetDir = FCPATH . 'uploads/barang';
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
+        $newName = $file->getRandomName();
+        $file->move($targetDir, $newName);
+        return $newName;
     }
 
     // API: ambil harga barang untuk AJAX di form penjualan/stok masuk

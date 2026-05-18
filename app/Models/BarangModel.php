@@ -22,6 +22,7 @@ class BarangModel extends Model
         'stok',
         'stok_minimum',
         'keterangan',
+        'gambar',
     ];
 
     // Dates
