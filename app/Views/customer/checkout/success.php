@@ -87,10 +87,28 @@
                     Rp <?= number_format($penjualan['total_harga'], 0, ',', '.') ?>
                 </span>
             </div>
+            <?php $isQris = ($penjualan['metode_bayar'] ?? 'cod') === 'qris'; ?>
             <div class="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                <i class="fas fa-money-bill-wave text-green-500"></i>
-                <span>Bayar di Tempat (COD)</span>
+                <?php if ($isQris): ?>
+                    <i class="fas fa-qrcode text-indigo-500"></i>
+                    <span>QRIS</span>
+                <?php else: ?>
+                    <i class="fas fa-money-bill-wave text-green-500"></i>
+                    <span>Bayar di Tempat (COD)</span>
+                <?php endif; ?>
             </div>
+
+            <?php if ($isQris): ?>
+            <div class="mt-4 p-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
+                <div class="flex flex-col items-center text-center">
+                    <p class="text-sm font-semibold text-slate-700 mb-1">Scan QRIS untuk membayar</p>
+                    <p class="text-xs text-slate-500 mb-3">Gunakan e-wallet / m-banking apa pun</p>
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                        <img src="<?= base_url('image/qris.jpeg') ?>" alt="QRIS" class="w-56 h-56 object-contain">
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
             <?php if ($penjualan['keterangan']): ?>
             <div class="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100 text-sm text-amber-700">
                 <i class="fas fa-sticky-note mr-1.5 text-amber-400"></i>
